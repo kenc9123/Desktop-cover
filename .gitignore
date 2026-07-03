@@ -1,0 +1,20 @@
+# Build output
+bin/
+obj/
+src/**/bin/
+src/**/obj/
+
+# Local SDK/cache folders used to keep dotnet writes inside the project
+dotnet-home/
+nuget-packages/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+.edit-check/
+.qa/
+
+# Local shell replacement backup
+tools/shell-mode/shell-backup.json
