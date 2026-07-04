@@ -32,8 +32,10 @@ Current prototype features:
 - Audio-reactive radial bars built from the physical disk geometry
 - Windows media session title / artist / album metadata when exposed by the active player
 - Stable album-art bay with subtle audio-level pulse when artwork is available
-- System tray entry for hiding, restoring, and exiting the shell
+- System tray entry for runtime toggles and safe shell exit
 - Runtime toggles for motion response, audio response, and always-on-top mode
+- Full-screen primary-display desktop surface for shell replacement testing
+- Safe close path that starts Explorer when Explorer is not running
 - Monochrome black/white industrial interface language
 - Low-brightness grid and terrain-like background line field
 - Shortcut/application rails intentionally deferred for future profile-specific desktop variants

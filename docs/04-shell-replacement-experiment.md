@@ -4,6 +4,8 @@ This document covers the optional TopoShell shell-mode experiment.
 
 Normal TopoShell does not replace Explorer. Shell mode is a deliberate experiment that changes the current user's Windows shell value so Windows starts TopoShell instead of `explorer.exe` after sign-in.
 
+TopoShell runs as a full-screen primary-display desktop surface in this mode. Closing TopoShell from its `X` button or command panel attempts to start `explorer.exe` first when Explorer is not already running.
+
 ## Safety Model
 
 - The scripts do not replace or modify the `explorer.exe` file.

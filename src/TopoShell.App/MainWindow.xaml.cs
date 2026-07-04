@@ -5,6 +5,8 @@ using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.ComponentModel;
+using System.Diagnostics;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
@@ -41,7 +43,6 @@ public partial class MainWindow : Window
     private readonly List<ScaleTransform3D> _audioBarScales = [];
     private readonly ScaleTransform _albumPulse = new(1, 1);
     private Forms.NotifyIcon? _trayIcon;
-    private Forms.ToolStripMenuItem? _trayVisibilityItem;
     private Forms.ToolStripMenuItem? _trayMotionItem;
     private Forms.ToolStripMenuItem? _trayAudioItem;
     private Forms.ToolStripMenuItem? _trayTopmostItem;
@@ -54,6 +55,7 @@ public partial class MainWindow : Window
     private bool _mediaUpdatePending;
     private bool _motionEnabled = true;
     private bool _audioEnabled = true;
+    private bool _isClosingThroughShellExit;
     private TextBlock? _clock3dText;
     private TextBlock? _date3dText;
     private TextBlock? _cpu3dValueText;
@@ -79,13 +81,7 @@ public partial class MainWindow : Window
         _audioTimer.Tick += (_, _) => UpdateAudioLevel();
         _mediaTimer.Tick += async (_, _) => await UpdateMediaAsync();
         CompositionTarget.Rendering += OnRendering;
-        StateChanged += (_, _) =>
-        {
-            if (WindowState == WindowState.Minimized)
-            {
-                HideToTray();
-            }
-        };
+        Closing += Window_Closing;
 
         Closed += (_, _) =>
         {
@@ -100,6 +96,7 @@ public partial class MainWindow : Window
 
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
+        ApplyDesktopSurfaceBounds();
         Focus();
         BuildCoreModel();
         UpdateTelemetry();
@@ -1038,14 +1035,11 @@ public partial class MainWindow : Window
 
     private void CreateTrayIcon()
     {
-        _trayVisibilityItem = new Forms.ToolStripMenuItem("Hide TopoShell", null, (_, _) => ToggleTrayVisibility());
         _trayMotionItem = new Forms.ToolStripMenuItem("Motion", null, (_, _) => ToggleMotion()) { Checked = true };
         _trayAudioItem = new Forms.ToolStripMenuItem("Audio Response", null, (_, _) => ToggleAudio()) { Checked = true };
         _trayTopmostItem = new Forms.ToolStripMenuItem("Always On Top", null, (_, _) => ToggleTopmost());
 
         var menu = new Forms.ContextMenuStrip();
-        menu.Items.Add(_trayVisibilityItem);
-        menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add(_trayMotionItem);
         menu.Items.Add(_trayAudioItem);
         menu.Items.Add(_trayTopmostItem);
@@ -1075,11 +1069,6 @@ public partial class MainWindow : Window
             StatusText.Text = $"MONO CORE // {Flag(_motionEnabled)} MOT // {Flag(_audioEnabled)} AUD";
         }
 
-        if (_trayVisibilityItem is not null)
-        {
-            _trayVisibilityItem.Text = IsVisible ? "Hide TopoShell" : "Show TopoShell";
-        }
-
         if (_trayMotionItem is not null)
         {
             _trayMotionItem.Checked = _motionEnabled;
@@ -1101,30 +1090,12 @@ public partial class MainWindow : Window
         return value ? "ON" : "OFF";
     }
 
-    private void ToggleTrayVisibility()
-    {
-        if (IsVisible)
-        {
-            HideToTray();
-            return;
-        }
-
-        ShowShell();
-    }
-
     private void ShowShell()
     {
         Show();
-        WindowState = WindowState.Normal;
+        ApplyDesktopSurfaceBounds();
         Activate();
         Focus();
-        RefreshRuntimeState();
-    }
-
-    private void HideToTray()
-    {
-        CommandPanel.Visibility = Visibility.Collapsed;
-        Hide();
         RefreshRuntimeState();
     }
 
@@ -1168,6 +1139,8 @@ public partial class MainWindow : Window
 
     private void ExitShell()
     {
+        _isClosingThroughShellExit = true;
+        EnsureExplorerFallback();
         Close();
     }
 
@@ -1191,11 +1164,6 @@ public partial class MainWindow : Window
         ResetParallax();
     }
 
-    private void HideToTray_Click(object sender, RoutedEventArgs e)
-    {
-        HideToTray();
-    }
-
     private void ExitShell_Click(object sender, RoutedEventArgs e)
     {
         ExitShell();
@@ -1203,22 +1171,47 @@ public partial class MainWindow : Window
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ClickCount == 2)
-        {
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-            return;
-        }
-
-        DragMove();
-    }
-
-    private void Minimize_Click(object sender, RoutedEventArgs e)
-    {
-        HideToTray();
+        e.Handled = true;
     }
 
     private void Close_Click(object sender, RoutedEventArgs e)
     {
-        Close();
+        ExitShell();
+    }
+
+    private void Window_Closing(object? sender, CancelEventArgs e)
+    {
+        if (!_isClosingThroughShellExit)
+        {
+            EnsureExplorerFallback();
+        }
+    }
+
+    private void ApplyDesktopSurfaceBounds()
+    {
+        WindowState = WindowState.Normal;
+        Left = 0;
+        Top = 0;
+        Width = SystemParameters.PrimaryScreenWidth;
+        Height = SystemParameters.PrimaryScreenHeight;
+    }
+
+    private static void EnsureExplorerFallback()
+    {
+        try
+        {
+            if (Process.GetProcessesByName("explorer").Length == 0)
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    UseShellExecute = true
+                });
+            }
+        }
+        catch
+        {
+            // Closing must not be blocked by a failed Explorer fallback attempt.
+        }
     }
 }

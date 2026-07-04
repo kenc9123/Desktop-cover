@@ -9,9 +9,9 @@
         Height="760"
         MinWidth="1000"
         MinHeight="640"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="Manual"
         WindowStyle="None"
-        ResizeMode="CanResizeWithGrip"
+        ResizeMode="NoResize"
         Background="#050505"
         Foreground="#F1F1F1"
         FontFamily="Segoe UI"
@@ -162,7 +162,6 @@
                                    Foreground="{StaticResource TextMid}" />
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Content="_" Style="{StaticResource ChromeButtonStyle}" Click="Minimize_Click" />
                         <Button Content="X" Style="{StaticResource ChromeButtonStyle}" Click="Close_Click" />
                     </StackPanel>
                 </Grid>
@@ -319,9 +318,6 @@
                     <Button Content="RESET VIEW"
                             Style="{StaticResource CommandButtonStyle}"
                             Click="ResetParallax_Click" />
-                    <Button Content="HIDE TO TRAY"
-                            Style="{StaticResource CommandButtonStyle}"
-                            Click="HideToTray_Click" />
                     <Button Content="EXIT SHELL"
                             Style="{StaticResource CommandButtonStyle}"
                             Click="ExitShell_Click" />

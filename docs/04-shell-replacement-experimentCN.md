@@ -4,6 +4,8 @@
 
 普通运行模式不会替换 Explorer。Shell 模式是一个主动选择的实验：把当前用户的 Windows Shell 值改为 TopoShell，让 Windows 在下次登录后启动 TopoShell，而不是启动 `explorer.exe`。
 
+在这个模式下，TopoShell 会作为主屏全屏桌面层显示。从右上角 `X` 或命令面板退出时，如果 Explorer 没有运行，TopoShell 会先尝试启动 `explorer.exe`，再关闭自身。
+
 ## 安全模型
 
 - 脚本不会替换或修改磁盘上的 `explorer.exe` 文件。
