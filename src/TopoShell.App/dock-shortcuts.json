@@ -1,0 +1,18 @@
+[
+  {
+    "label": "Explorer",
+    "target": "explorer.exe"
+  },
+  {
+    "label": "Terminal",
+    "target": "wt.exe"
+  },
+  {
+    "label": "Edge",
+    "target": "msedge.exe"
+  },
+  {
+    "label": "Notepad",
+    "target": "notepad.exe"
+  }
+]

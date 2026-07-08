@@ -2,7 +2,7 @@
 
 TopoShell is an experimental Windows 11 desktop interaction layer. It explores an industrial functional interface style: minimal at first glance, but structured, dense, and useful up close.
 
-It is not a wallpaper app and not a desktop widget collection. The default goal is to provide a safe, reversible desktop layer with a Dock, command panel, status surface, parallax scene, and later audio-reactive system visuals without replacing `explorer.exe`, changing the Windows shell registry value, or hooking the taskbar.
+It is not a wallpaper app and not a desktop widget collection. The default goal is to provide a safe, reversible desktop layer with a configurable Dock, command panel, status surface, parallax scene, and audio-reactive system visuals without replacing `explorer.exe`, changing the Windows shell registry value, or hooking the taskbar.
 
 An opt-in shell replacement experiment now exists under `tools/shell-mode`. It targets the current-user HKCU shell value only, does not modify the `explorer.exe` file, and includes restore scripts.
 
@@ -20,7 +20,8 @@ Current prototype features:
 
 - Borderless desktop-style WPF window
 - Industrial functional dark interface
-- Central circular system core
+- Full-screen primary-display desktop surface for shell replacement testing
+- Central circular system core tuned to leave room for the bottom Dock
 - Real WPF `Viewport3D` mechanical core with extruded rings, plates, and tick blocks
 - `Viewport2DVisual3D` information panels attached to the same 3D disk transform
 - Compact surface decals for media, telemetry, and time instead of a hidden center overlay
@@ -32,14 +33,35 @@ Current prototype features:
 - Audio-reactive radial bars built from the physical disk geometry
 - Windows media session title / artist / album metadata when exposed by the active player
 - Stable album-art bay with subtle audio-level pulse when artwork is available
+- Configurable bottom Dock loaded from `dock-shortcuts.json`
+- Dock shortcut buttons with extracted app icons when possible and text-initial fallback
 - System tray entry for runtime toggles and safe shell exit
 - Runtime toggles for motion response, audio response, and always-on-top mode
-- Full-screen primary-display desktop surface for shell replacement testing
 - Safe close path that starts Explorer when Explorer is not running
 - Monochrome black/white industrial interface language
 - Low-brightness grid and terrain-like background line field
-- Shortcut/application rails intentionally deferred for future profile-specific desktop variants
-- Command slot toggled by `Ctrl+Space` or the footer slot, with compact runtime control actions
+- Command slot toggled by `Ctrl+Space` or the Dock command button, with compact runtime control actions
+
+## Dock Configuration
+
+The bottom Dock reads `dock-shortcuts.json` from the application output folder. The source profile lives at:
+
+```text
+src/TopoShell.App/dock-shortcuts.json
+```
+
+Example entry:
+
+```json
+{
+  "label": "Terminal",
+  "target": "wt.exe",
+  "arguments": "",
+  "workingDirectory": ""
+}
+```
+
+`target` can be an executable name available on `PATH`, a full executable path, a shortcut, document, folder, or URL that Windows can open through shell execution. `arguments` and `workingDirectory` are optional.
 
 ## Build And Run
 
@@ -87,6 +109,10 @@ If this is a clean checkout after the Windows media-session target framework cha
 
 ## Development Logs
 
+- [2026-07-08 Development Log](dev-log/2026-07-08.md)
+- [2026-07-08 Chinese Development Log](dev-log/2026-07-08CN.md)
+- [2026-07-04 Development Log](dev-log/2026-07-04.md)
+- [2026-07-04 Chinese Development Log](dev-log/2026-07-04CN.md)
 - [2026-06-30 Development Log](dev-log/2026-06-30.md)
 - [2026-06-30 Chinese Development Log](dev-log/2026-06-30CN.md)
 - [2026-07-03 Development Log](dev-log/2026-07-03.md)

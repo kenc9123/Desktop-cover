@@ -104,6 +104,44 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="DockButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Width" Value="118" />
+            <Setter Property="Height" Value="46" />
+            <Setter Property="Margin" Value="0,0,8,0" />
+            <Setter Property="Padding" Value="9,0" />
+            <Setter Property="Foreground" Value="#EFEFEF" />
+            <Setter Property="Background" Value="#141414" />
+            <Setter Property="BorderBrush" Value="#66FFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="2">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#252525" />
+                                <Setter Property="BorderBrush" Value="#E8FFFFFF" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#E6E6E6" />
+                                <Setter Property="Foreground" Value="#050505" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid x:Name="Root" ClipToBounds="True">
@@ -131,7 +169,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="48" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="70" />
+                <RowDefinition Height="86" />
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
@@ -181,8 +219,8 @@
                     <Border Style="{StaticResource PanelBorderStyle}" Padding="16" Margin="0,0,0,14">
                         <StackPanel>
                             <TextBlock Text="CONFIG VECTOR" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextHigh}" />
-                            <TextBlock Text="PROFILE RAILS OFFLINE" Margin="0,14,0,0" FontFamily="Consolas" Foreground="{StaticResource TextHigh}" />
-                            <TextBlock Text="shortcut layers will be loaded by desktop profile later."
+                            <TextBlock Text="DOCK PROFILE ONLINE" Margin="0,14,0,0" FontFamily="Consolas" Foreground="{StaticResource TextHigh}" />
+                            <TextBlock Text="bottom shortcuts are loaded from dock-shortcuts.json beside the app."
                                        TextWrapping="Wrap"
                                        Margin="0,10,0,0"
                                        LineHeight="19"
@@ -198,32 +236,40 @@
                     </Border>
                 </StackPanel>
 
-                <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Grid Width="660" Height="620" RenderTransformOrigin="0.5,0.5">
-                        <Grid.RenderTransform>
-                            <TranslateTransform x:Name="CoreHudTransform" />
-                        </Grid.RenderTransform>
+                <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="0">
+                    <Viewbox Stretch="Uniform"
+                             StretchDirection="Both"
+                             MaxWidth="1060"
+                             MaxHeight="900"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Top"
+                             Margin="0,4,0,0">
+                        <Grid Width="660" Height="620" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <TranslateTransform x:Name="CoreHudTransform" />
+                            </Grid.RenderTransform>
 
-                        <Viewport3D x:Name="CoreViewport"
-                                    Width="640"
-                                    Height="600"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    ClipToBounds="False"
-                                    IsHitTestVisible="False" />
+                            <Viewport3D x:Name="CoreViewport"
+                                        Width="640"
+                                        Height="600"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        ClipToBounds="False"
+                                        IsHitTestVisible="False" />
 
-                        <Canvas Width="660" Height="620" IsHitTestVisible="False">
-                            <Line X1="330" Y1="24" X2="330" Y2="106" Stroke="#88FFFFFF" StrokeThickness="1" />
-                            <Line X1="330" Y1="514" X2="330" Y2="596" Stroke="#55FFFFFF" StrokeThickness="1" />
-                            <Line X1="44" Y1="310" X2="128" Y2="310" Stroke="#55FFFFFF" StrokeThickness="1" />
-                            <Line X1="532" Y1="310" X2="616" Y2="310" Stroke="#88FFFFFF" StrokeThickness="1" />
-                            <Polyline Points="170,112 124,112 124,176" Stroke="#55FFFFFF" StrokeThickness="1" />
-                            <Polyline Points="490,508 536,508 536,444" Stroke="#55FFFFFF" StrokeThickness="1" />
-                            <TextBlock Text="CORE-00" Canvas.Left="288" Canvas.Top="70" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextMid}" />
-                            <TextBlock Text="DEPTH / ACTIVE" Canvas.Left="452" Canvas.Top="492" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextLow}" />
-                        </Canvas>
+                            <Canvas Width="660" Height="620" IsHitTestVisible="False">
+                                <Line X1="330" Y1="24" X2="330" Y2="106" Stroke="#88FFFFFF" StrokeThickness="1" />
+                                <Line X1="330" Y1="514" X2="330" Y2="596" Stroke="#55FFFFFF" StrokeThickness="1" />
+                                <Line X1="44" Y1="310" X2="128" Y2="310" Stroke="#55FFFFFF" StrokeThickness="1" />
+                                <Line X1="532" Y1="310" X2="616" Y2="310" Stroke="#88FFFFFF" StrokeThickness="1" />
+                                <Polyline Points="170,112 124,112 124,176" Stroke="#55FFFFFF" StrokeThickness="1" />
+                                <Polyline Points="490,508 536,508 536,444" Stroke="#55FFFFFF" StrokeThickness="1" />
+                                <TextBlock Text="CORE-00" Canvas.Left="288" Canvas.Top="70" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextMid}" />
+                                <TextBlock Text="DEPTH / ACTIVE" Canvas.Left="452" Canvas.Top="492" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextLow}" />
+                            </Canvas>
 
-                    </Grid>
+                        </Grid>
+                    </Viewbox>
                 </Grid>
 
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
@@ -252,23 +298,42 @@
             </Grid>
 
             <Border Grid.Row="2"
-                    Height="48"
+                    Height="64"
                     Style="{StaticResource PanelBorderStyle}"
-                    Padding="14,0"
-                    Cursor="Hand"
-                    MouseLeftButtonDown="FooterCommandSlot_MouseLeftButtonDown">
+                    Padding="12,0">
                 <Grid>
-                    <TextBlock Text="MONO INDUSTRIAL CORE // SHORTCUT PROFILES DEFERRED"
-                               FontFamily="Consolas"
-                               FontSize="12"
-                               Foreground="{StaticResource TextLow}"
-                               VerticalAlignment="Center" />
-                    <TextBlock Text="CTRL+SPACE COMMAND SLOT"
-                               FontFamily="Consolas"
-                               FontSize="12"
-                               Foreground="{StaticResource TextMid}"
-                               HorizontalAlignment="Right"
-                               VerticalAlignment="Center" />
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="2,0,10,0">
+                        <TextBlock Text="DOCK"
+                                   FontFamily="Consolas"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextHigh}" />
+                        <TextBlock Text="dock-shortcuts.json"
+                                   FontFamily="Consolas"
+                                   FontSize="10"
+                                   Foreground="{StaticResource TextLow}" />
+                    </StackPanel>
+                    <ScrollViewer Grid.Column="1"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  VerticalAlignment="Center"
+                                  Focusable="False">
+                        <StackPanel x:Name="DockItemsPanel"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center" />
+                    </ScrollViewer>
+                    <Button Grid.Column="2"
+                            Content="CTRL+SPACE"
+                            Style="{StaticResource CommandButtonStyle}"
+                            Margin="12,0,0,0"
+                            MinWidth="112"
+                            Height="34"
+                            Click="CommandSlot_Click" />
                 </Grid>
             </Border>
         </Grid>

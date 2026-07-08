@@ -7,8 +7,12 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Text.Json;
+using System.Windows.Interop;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
+using Button = System.Windows.Controls.Button;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using Drawing = System.Drawing;
@@ -16,6 +20,7 @@ using FontFamily = System.Windows.Media.FontFamily;
 using Forms = System.Windows.Forms;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using Image = System.Windows.Controls.Image;
+using IOPath = System.IO.Path;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using Orientation = System.Windows.Controls.Orientation;
@@ -98,6 +103,7 @@ public partial class MainWindow : Window
     {
         ApplyDesktopSurfaceBounds();
         Focus();
+        LoadDockShortcuts();
         BuildCoreModel();
         UpdateTelemetry();
         UpdateAudioLevel();
@@ -258,10 +264,10 @@ public partial class MainWindow : Window
         CoreViewport.Children.Clear();
         CoreViewport.Camera = new PerspectiveCamera
         {
-            Position = new Point3D(0, -4.8, 8.2),
-            LookDirection = new Vector3D(0, 4.8, -7.8),
+            Position = new Point3D(0, -4.55, 7.75),
+            LookDirection = new Vector3D(0, 4.55, -7.35),
             UpDirection = new Vector3D(0, 0, 1),
-            FieldOfView = 37
+            FieldOfView = 32
         };
 
         var model = new Model3DGroup();
@@ -309,9 +315,9 @@ public partial class MainWindow : Window
 
         var visual = new ModelVisual3D { Content = model };
         CoreViewport.Children.Add(visual);
-        CoreViewport.Children.Add(CreateAttachedPanel(-0.72, -0.10, 0.52, 1.22, 0.64, BuildAlbumPanel()));
-        CoreViewport.Children.Add(CreateAttachedPanel(0.72, -0.08, 0.525, 1.30, 0.64, BuildTelemetryPanel()));
-        CoreViewport.Children.Add(CreateAttachedPanel(0.00, -0.88, 0.53, 1.18, 0.34, BuildTimePanel()));
+        CoreViewport.Children.Add(CreateAttachedPanel(-0.82, -0.08, 0.54, 1.44, 0.78, BuildAlbumPanel()));
+        CoreViewport.Children.Add(CreateAttachedPanel(0.82, -0.06, 0.545, 1.52, 0.78, BuildTelemetryPanel()));
+        CoreViewport.Children.Add(CreateAttachedPanel(0.00, -0.96, 0.55, 1.42, 0.46, BuildTimePanel()));
     }
 
     private Viewport2DVisual3D CreateAttachedPanel(double centerX, double centerY, double z, double width, double height, Visual visual)
@@ -358,17 +364,17 @@ public partial class MainWindow : Window
 
     private Visual BuildTimePanel()
     {
-        var shell = CreatePanelShell(240, 60, new Thickness(12, 6, 12, 6));
+        var shell = CreatePanelShell(280, 76, new Thickness(14, 7, 14, 7));
         var stack = new StackPanel { Orientation = Orientation.Vertical };
 
-        stack.Children.Add(CreateMonoText("TIME DECAL // SURFACE", 8, Rgba(160, 245, 245, 245), FontWeights.SemiBold));
+        stack.Children.Add(CreateMonoText("TIME DECAL // SURFACE", 9, Rgba(170, 245, 245, 245), FontWeights.SemiBold));
 
-        _clock3dText = CreateMonoText("00:00:00", 22, Rgba(255, 250, 250, 250), FontWeights.SemiBold);
+        _clock3dText = CreateMonoText("00:00:00", 28, Rgba(255, 250, 250, 250), FontWeights.SemiBold);
         _clock3dText.Margin = new Thickness(0, 1, 0, 0);
         _clock3dText.HorizontalAlignment = HorizontalAlignment.Center;
         stack.Children.Add(_clock3dText);
 
-        _date3dText = CreateMonoText("1970-01-01", 8, Rgba(135, 210, 210, 210), FontWeights.Normal);
+        _date3dText = CreateMonoText("1970-01-01", 9.5, Rgba(145, 210, 210, 210), FontWeights.Normal);
         _date3dText.HorizontalAlignment = HorizontalAlignment.Center;
         stack.Children.Add(_date3dText);
 
@@ -378,20 +384,20 @@ public partial class MainWindow : Window
 
     private Visual BuildTelemetryPanel()
     {
-        var shell = CreatePanelShell(316, 126, new Thickness(12, 8, 12, 8));
+        var shell = CreatePanelShell(354, 148, new Thickness(14, 9, 14, 9));
         var grid = new Grid();
 
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(20) });
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(26) });
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(26) });
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(26) });
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(22) });
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(31) });
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(31) });
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(31) });
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(45) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(52) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(48) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(58) });
 
-        var header = CreateMonoText("SURFACE TELEMETRY", 8, Rgba(170, 245, 245, 245), FontWeights.SemiBold);
+        var header = CreateMonoText("SURFACE TELEMETRY", 9, Rgba(180, 245, 245, 245), FontWeights.SemiBold);
         Grid.SetColumnSpan(header, 3);
         grid.Children.Add(header);
 
@@ -399,7 +405,7 @@ public partial class MainWindow : Window
         AddMetricRow(grid, 2, "MEM", Rgba(205, 205, 205, 205), out _memory3dValueText, out _memory3dScale);
         AddMetricRow(grid, 3, "GPU", Rgba(150, 145, 145, 145), out _gpu3dValueText, out _gpu3dScale);
 
-        _memory3dDetailText = CreateMonoText("MEM // -- GB / -- GB", 8, Rgba(125, 190, 190, 190), FontWeights.Normal);
+        _memory3dDetailText = CreateMonoText("MEM // -- GB / -- GB", 9, Rgba(135, 190, 190, 190), FontWeights.Normal);
         _memory3dDetailText.VerticalAlignment = VerticalAlignment.Bottom;
         Grid.SetRow(_memory3dDetailText, 4);
         Grid.SetColumnSpan(_memory3dDetailText, 3);
@@ -411,25 +417,25 @@ public partial class MainWindow : Window
 
     private Visual BuildAlbumPanel()
     {
-        var shell = CreatePanelShell(292, 132, new Thickness(12, 8, 12, 8));
+        var shell = CreatePanelShell(342, 156, new Thickness(14, 9, 14, 9));
         var root = new Grid();
-        root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(18) });
+        root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(20) });
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        var header = CreateMonoText("MEDIA BAY // STEADY", 8, Rgba(175, 245, 245, 245), FontWeights.SemiBold);
+        var header = CreateMonoText("MEDIA BAY // STEADY", 9, Rgba(185, 245, 245, 245), FontWeights.SemiBold);
         root.Children.Add(header);
 
-        var body = new Grid { Margin = new Thickness(0, 5, 0, 0) };
-        body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+        var body = new Grid { Margin = new Thickness(0, 6, 0, 0) };
+        body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(96) });
         body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         Grid.SetRow(body, 1);
         root.Children.Add(body);
 
         var coverBay = new Grid
         {
-            Width = 72,
-            Height = 72,
-            Margin = new Thickness(0, 4, 0, 0),
+            Width = 86,
+            Height = 86,
+            Margin = new Thickness(0, 5, 0, 0),
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
             RenderTransformOrigin = new Point(0.5, 0.5)
@@ -444,7 +450,7 @@ public partial class MainWindow : Window
         });
         coverBay.Children.Add(new Rectangle
         {
-            Margin = new Thickness(7),
+            Margin = new Thickness(8),
             Stroke = Rgba(90, 245, 245, 245),
             StrokeThickness = 1,
             StrokeDashArray = new DoubleCollection { 5, 4 }
@@ -452,8 +458,8 @@ public partial class MainWindow : Window
 
         _albumFrameBorder = new Border
         {
-            Width = 50,
-            Height = 50,
+            Width = 62,
+            Height = 62,
             Background = Rgba(230, 8, 8, 8),
             BorderBrush = _albumFrameBrush,
             BorderThickness = new Thickness(1),
@@ -469,7 +475,7 @@ public partial class MainWindow : Window
             Visibility = Visibility.Collapsed,
             Opacity = 0.96
         };
-        _albumPlaceholderText = CreateMonoText("MEDIA\nBAY", 9, Rgba(185, 235, 235, 235), FontWeights.SemiBold);
+        _albumPlaceholderText = CreateMonoText("MEDIA\nBAY", 10, Rgba(195, 235, 235, 235), FontWeights.SemiBold);
         _albumPlaceholderText.TextAlignment = TextAlignment.Center;
         _albumPlaceholderText.HorizontalAlignment = HorizontalAlignment.Center;
         _albumPlaceholderText.VerticalAlignment = VerticalAlignment.Center;
@@ -482,21 +488,21 @@ public partial class MainWindow : Window
 
         var info = new StackPanel
         {
-            Margin = new Thickness(4, 4, 0, 0),
+            Margin = new Thickness(4, 5, 0, 0),
             VerticalAlignment = VerticalAlignment.Top
         };
 
-        _mediaTitleText = CreateMonoText("NO MEDIA SESSION", 12, Rgba(255, 250, 250, 250), FontWeights.SemiBold);
+        _mediaTitleText = CreateMonoText("NO MEDIA SESSION", 14, Rgba(255, 250, 250, 250), FontWeights.SemiBold);
         _mediaTitleText.TextWrapping = TextWrapping.Wrap;
-        _mediaTitleText.MaxHeight = 32;
+        _mediaTitleText.MaxHeight = 40;
         info.Children.Add(_mediaTitleText);
 
-        _mediaArtistText = CreateMonoText("AUDIO BUS LISTENING", 8, Rgba(155, 210, 210, 210), FontWeights.Normal);
-        _mediaArtistText.Margin = new Thickness(0, 6, 0, 0);
+        _mediaArtistText = CreateMonoText("AUDIO BUS LISTENING", 9.5, Rgba(165, 210, 210, 210), FontWeights.Normal);
+        _mediaArtistText.Margin = new Thickness(0, 7, 0, 0);
         info.Children.Add(_mediaArtistText);
 
-        _mediaAlbumText = CreateMonoText("WAITING FOR SESSION", 8, Rgba(120, 185, 185, 185), FontWeights.Normal);
-        _mediaAlbumText.Margin = new Thickness(0, 5, 0, 0);
+        _mediaAlbumText = CreateMonoText("WAITING FOR SESSION", 9.5, Rgba(130, 185, 185, 185), FontWeights.Normal);
+        _mediaAlbumText.Margin = new Thickness(0, 6, 0, 0);
         _mediaAlbumText.TextWrapping = TextWrapping.Wrap;
         info.Children.Add(_mediaAlbumText);
 
@@ -514,8 +520,8 @@ public partial class MainWindow : Window
             Width = width,
             Height = height,
             Padding = padding,
-            Background = Rgba(196, 4, 4, 4),
-            BorderBrush = Rgba(105, 245, 245, 245),
+            Background = Rgba(218, 4, 4, 4),
+            BorderBrush = Rgba(130, 245, 245, 245),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(2),
             SnapsToDevicePixels = true
@@ -524,7 +530,7 @@ public partial class MainWindow : Window
 
     private static TextBlock CreateMonoText(string text, double fontSize, Brush foreground, FontWeight weight)
     {
-        return new TextBlock
+        var block = new TextBlock
         {
             Text = text,
             FontFamily = new FontFamily("Consolas"),
@@ -533,18 +539,22 @@ public partial class MainWindow : Window
             Foreground = foreground,
             TextTrimming = TextTrimming.CharacterEllipsis
         };
+
+        TextOptions.SetTextFormattingMode(block, TextFormattingMode.Display);
+        TextOptions.SetTextRenderingMode(block, TextRenderingMode.ClearType);
+        return block;
     }
 
     private static void AddMetricRow(Grid grid, int row, string label, Brush fillBrush, out TextBlock valueText, out ScaleTransform scale)
     {
-        var labelText = CreateMonoText(label, 11, Rgba(230, 245, 245, 245), FontWeights.SemiBold);
+        var labelText = CreateMonoText(label, 12, Rgba(235, 245, 245, 245), FontWeights.SemiBold);
         labelText.VerticalAlignment = VerticalAlignment.Center;
         Grid.SetRow(labelText, row);
         grid.Children.Add(labelText);
 
         var track = new Border
         {
-            Height = 6,
+            Height = 8,
             Background = Rgba(150, 34, 34, 34),
             BorderBrush = Rgba(70, 255, 255, 255),
             BorderThickness = new Thickness(1),
@@ -564,7 +574,7 @@ public partial class MainWindow : Window
         Grid.SetColumn(track, 1);
         grid.Children.Add(track);
 
-        valueText = CreateMonoText("--%", 12, Rgba(240, 245, 245, 245), FontWeights.SemiBold);
+        valueText = CreateMonoText("--%", 14, Rgba(245, 245, 245, 245), FontWeights.SemiBold);
         valueText.HorizontalAlignment = HorizontalAlignment.Right;
         valueText.VerticalAlignment = VerticalAlignment.Center;
         Grid.SetRow(valueText, row);
@@ -1010,6 +1020,276 @@ public partial class MainWindow : Window
         }
     }
 
+    private void LoadDockShortcuts()
+    {
+        DockItemsPanel.Children.Clear();
+
+        var shortcuts = ReadDockShortcuts()
+            .Where(IsUsableDockShortcut)
+            .Take(14)
+            .ToList();
+
+        if (shortcuts.Count == 0)
+        {
+            DockItemsPanel.Children.Add(CreateMonoText("NO DOCK SHORTCUTS", 11, Rgba(150, 210, 210, 210), FontWeights.SemiBold));
+            return;
+        }
+
+        foreach (var shortcut in shortcuts)
+        {
+            DockItemsPanel.Children.Add(CreateDockButton(shortcut));
+        }
+    }
+
+    private Button CreateDockButton(DockShortcut shortcut)
+    {
+        var content = new Grid();
+        content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        var icon = CreateDockIcon(shortcut);
+        Grid.SetColumn(icon, 0);
+        content.Children.Add(icon);
+
+        var label = CreateMonoText(shortcut.Label, 11, Rgba(235, 245, 245, 245), FontWeights.SemiBold);
+        label.VerticalAlignment = VerticalAlignment.Center;
+        label.Margin = new Thickness(8, 0, 0, 0);
+        Grid.SetColumn(label, 1);
+        content.Children.Add(label);
+
+        var button = new Button
+        {
+            Style = (Style)FindResource("DockButtonStyle"),
+            Content = content,
+            Tag = shortcut,
+            ToolTip = string.IsNullOrWhiteSpace(shortcut.Arguments)
+                ? shortcut.Target
+                : $"{shortcut.Target} {shortcut.Arguments}"
+        };
+
+        button.Click += DockShortcut_Click;
+        return button;
+    }
+
+    private FrameworkElement CreateDockIcon(DockShortcut shortcut)
+    {
+        var source = TryLoadDockIcon(shortcut.Target);
+        if (source is not null)
+        {
+            return new Image
+            {
+                Source = source,
+                Width = 24,
+                Height = 24,
+                Stretch = Stretch.Uniform,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+        }
+
+        var initial = string.IsNullOrWhiteSpace(shortcut.Label)
+            ? "?"
+            : shortcut.Label.Trim()[0].ToString().ToUpperInvariant();
+
+        return new Border
+        {
+            Width = 24,
+            Height = 24,
+            Background = Rgba(220, 20, 20, 20),
+            BorderBrush = Rgba(120, 245, 245, 245),
+            BorderThickness = new Thickness(1),
+            Child = new TextBlock
+            {
+                Text = initial,
+                FontFamily = new FontFamily("Consolas"),
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = Rgba(235, 245, 245, 245),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            }
+        };
+    }
+
+    private static ImageSource? TryLoadDockIcon(string target)
+    {
+        var path = ResolveExecutablePath(Environment.ExpandEnvironmentVariables(target));
+        if (path is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            using var icon = Drawing.Icon.ExtractAssociatedIcon(path);
+            if (icon is null)
+            {
+                return null;
+            }
+
+            var image = Imaging.CreateBitmapSourceFromHIcon(
+                icon.Handle,
+                Int32Rect.Empty,
+                System.Windows.Media.Imaging.BitmapSizeOptions.FromWidthAndHeight(24, 24));
+            image.Freeze();
+            return image;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? ResolveExecutablePath(string target)
+    {
+        if (string.IsNullOrWhiteSpace(target))
+        {
+            return null;
+        }
+
+        var trimmed = target.Trim().Trim('"');
+
+        try
+        {
+            if (IOPath.IsPathFullyQualified(trimmed) && File.Exists(trimmed))
+            {
+                return trimmed;
+            }
+
+            if (File.Exists(trimmed))
+            {
+                return IOPath.GetFullPath(trimmed);
+            }
+        }
+        catch
+        {
+            return null;
+        }
+
+        var fileName = IOPath.GetFileName(trimmed);
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return null;
+        }
+
+        var windowsPath = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+        foreach (var directory in GetExecutableSearchDirectories(windowsPath))
+        {
+            try
+            {
+                var candidate = IOPath.Combine(directory, fileName);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+            catch
+            {
+                // Ignore malformed PATH entries.
+            }
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<string> GetExecutableSearchDirectories(string windowsPath)
+    {
+        if (!string.IsNullOrWhiteSpace(windowsPath))
+        {
+            yield return windowsPath;
+            yield return IOPath.Combine(windowsPath, "System32");
+        }
+
+        var pathValue = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
+        foreach (var directory in pathValue.Split(IOPath.PathSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            yield return directory;
+        }
+    }
+
+    private static IReadOnlyList<DockShortcut> ReadDockShortcuts()
+    {
+        var path = IOPath.Combine(AppContext.BaseDirectory, "dock-shortcuts.json");
+
+        try
+        {
+            if (File.Exists(path))
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    ReadCommentHandling = JsonCommentHandling.Skip,
+                    AllowTrailingCommas = true
+                };
+
+                var shortcuts = JsonSerializer.Deserialize<List<DockShortcut>>(File.ReadAllText(path), options);
+                if (shortcuts is { Count: > 0 })
+                {
+                    return shortcuts;
+                }
+            }
+        }
+        catch
+        {
+            // A broken local dock config should not stop the shell from opening.
+        }
+
+        return GetDefaultDockShortcuts();
+    }
+
+    private static IReadOnlyList<DockShortcut> GetDefaultDockShortcuts()
+    {
+        return
+        [
+            new DockShortcut { Label = "Explorer", Target = "explorer.exe" },
+            new DockShortcut { Label = "Terminal", Target = "wt.exe" },
+            new DockShortcut { Label = "Edge", Target = "msedge.exe" },
+            new DockShortcut { Label = "Notepad", Target = "notepad.exe" }
+        ];
+    }
+
+    private static bool IsUsableDockShortcut(DockShortcut shortcut)
+    {
+        return !string.IsNullOrWhiteSpace(shortcut.Label)
+            && !string.IsNullOrWhiteSpace(shortcut.Target);
+    }
+
+    private void DockShortcut_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: DockShortcut shortcut })
+        {
+            LaunchDockShortcut(shortcut);
+        }
+    }
+
+    private void LaunchDockShortcut(DockShortcut shortcut)
+    {
+        try
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = Environment.ExpandEnvironmentVariables(shortcut.Target),
+                UseShellExecute = true
+            };
+
+            if (!string.IsNullOrWhiteSpace(shortcut.Arguments))
+            {
+                startInfo.Arguments = Environment.ExpandEnvironmentVariables(shortcut.Arguments);
+            }
+
+            if (!string.IsNullOrWhiteSpace(shortcut.WorkingDirectory))
+            {
+                startInfo.WorkingDirectory = Environment.ExpandEnvironmentVariables(shortcut.WorkingDirectory);
+            }
+
+            Process.Start(startInfo);
+            StatusText.Text = $"DOCK // LAUNCHED {shortcut.Label.ToUpperInvariant()}";
+        }
+        catch
+        {
+            StatusText.Text = $"DOCK // FAILED {shortcut.Label.ToUpperInvariant()}";
+        }
+    }
+
     private void ToggleCommandPanel()
     {
         var show = CommandPanel.Visibility != Visibility.Visible;
@@ -1028,7 +1308,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void FooterCommandSlot_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    private void CommandSlot_Click(object sender, RoutedEventArgs e)
     {
         ToggleCommandPanel();
     }
@@ -1213,5 +1493,16 @@ public partial class MainWindow : Window
         {
             // Closing must not be blocked by a failed Explorer fallback attempt.
         }
+    }
+
+    private sealed class DockShortcut
+    {
+        public string Label { get; set; } = string.Empty;
+
+        public string Target { get; set; } = string.Empty;
+
+        public string? Arguments { get; set; }
+
+        public string? WorkingDirectory { get; set; }
     }
 }
