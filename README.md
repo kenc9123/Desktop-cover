@@ -1,12 +1,12 @@
 # TopoShell
 
+English 丨 [简体中文](./READMECN.md)
+
 TopoShell is an experimental Windows 11 desktop interaction layer. It explores an industrial functional interface style: minimal at first glance, but structured, dense, and useful up close.
 
 It is not a wallpaper app and not a desktop widget collection. The default goal is to provide a safe, reversible desktop layer with a configurable Dock, command panel, status surface, parallax scene, and audio-reactive system visuals without replacing `explorer.exe`, changing the Windows shell registry value, or hooking the taskbar.
 
 An opt-in shell replacement experiment now exists under `tools/shell-mode`. It targets the current-user HKCU shell value only, does not modify the `explorer.exe` file, and includes restore scripts.
-
-Chinese README: [READMECN.md](READMECN.md)
 
 ## Status
 
