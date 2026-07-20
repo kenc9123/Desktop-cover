@@ -1,12 +1,12 @@
 # TopoShell
 
+[English](./README.md) 丨 简体中文
+
 TopoShell 是一个 Windows 11 桌面交互层实验项目。它探索一种工业机能风格的系统增强体验：第一眼简洁，近看有结构、有密度，也有明确功能。
 
 它不是壁纸软件，也不是桌面小组件合集。默认目标是在不替换 `explorer.exe`、不修改系统 Shell 注册表、不 hook 任务栏的前提下，提供一个安全、可退出、可恢复的桌面层，包括可配置 Dock、命令面板、状态信息、视差场景和音频响应式系统视觉。
 
 可选的 Shell 替换实验位于 `tools/shell-mode`。它只修改当前用户的 HKCU Shell 值，不会修改磁盘上的 `explorer.exe` 文件，并提供恢复脚本。
-
-English README: [README.md](README.md)
 
 ## 当前状态
 
